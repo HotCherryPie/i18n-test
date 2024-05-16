@@ -1,0 +1,3 @@
+files:
+  - source: /src/translations/en-us.ts
+    translation: /src/translations/%locale%.ts
