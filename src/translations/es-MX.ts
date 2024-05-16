@@ -1,4 +1,4 @@
 export enum Translations {
-  string1 = 'asd',
-  string2 = 'asd',
+  string1 = "hehe",
+  string2 = "hehe 2",
 }
