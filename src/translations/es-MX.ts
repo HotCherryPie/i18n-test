@@ -1,4 +1,4 @@
-export class Translations {
-  string1 = 'asd';
-  string2 = 'asd';
+export enum Translations {
+  string1 = 'asd',
+  string2 = 'asd',
 }
