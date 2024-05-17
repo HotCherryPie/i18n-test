@@ -7,6 +7,10 @@ type Mapping = {
   [K in ArrayIndices<Index> as Index[K][0]]: Record<Index[K][1], string>;
 };
 
+const resolveTest = import.meta.glob('../translations-2/*/*.ts');
+
+console.log('>>>', resolveTest);
+
 export const useTranslations = <TVolume extends Volume>(volume: TVolume) => {
   return {} as Mapping[TVolume];
 };
