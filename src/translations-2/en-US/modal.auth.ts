@@ -4,4 +4,4 @@ export enum Data {
 
 export default Data;
 
-export type Keys = keyof typeof Data;
+export type DataType = typeof Data;
