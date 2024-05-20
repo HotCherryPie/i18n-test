@@ -1,10 +1,9 @@
 <template>
-  <div>Hello</div>
+  <div>Hello {{ str.stringA }}</div>
 </template>
 
 <script setup>
 import { useTranslations } from '@/hooks/useTranslations';
 
-const x = useTranslations('common');
-x.stringA;
+const { str, promise } = useTranslations('common');
 </script>

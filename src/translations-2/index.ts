@@ -15,19 +15,13 @@ export type Index = I18nStorageIndex<{
   'page.home': PageHomeKeys;
 }>;
 
-// A lil hack until `import.meta.resolve` support
-//  https://github.com/vitejs/vite/issues/14500
 export const createI18nStorage = <TIndex extends I18nStorageIndex>(
-  storage: Record<string, () => unknown>,
+  storage: Record<string, () => Promise<unknown>>,
 ) =>
   Object.entries(storage)
     .map(
       ([k, v]) =>
-        [
-          k.slice(0, -3).split('/').slice(-2) as [string, string],
-          v,
-          // v.toString().match('"(.+)"')![1] as string,
-        ] as const,
+        [k.slice(0, -3).split('/').slice(-2) as [string, string], v] as const,
     )
     .reduce(
       (out, [[lang, volume], v]) => {
@@ -35,13 +29,11 @@ export const createI18nStorage = <TIndex extends I18nStorageIndex>(
         out[lang]![volume] = v;
         return out;
       },
-      {} as Record<string, Record<string, () => unknown>>,
-    ) as unknown as {
-    [K in keyof TIndex]: () => Promise<TIndex[K]>;
-  };
+      {} as Record<string, Record<string, () => Promise<unknown>>>,
+    ) as Record<string, { [K in keyof TIndex]: () => Promise<TIndex[K]> }>;
 
-export const storage = createI18nStorage<Index>(import.meta.glob('./*/*.ts'));
-
-const x = (await storage['common']()).stringA;
-
-// TODO: Map DataType values with `${}` to get values suggestions
+export const storage = createI18nStorage<Index>(
+  import.meta.glob('./*/*.ts', {
+    import: 'default',
+  }),
+);

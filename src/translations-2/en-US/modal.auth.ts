@@ -1,4 +1,4 @@
-export enum Data {
+enum Data {
   string1 = 'String 1',
 }
 
