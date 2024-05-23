@@ -1,8 +1,7 @@
-import { shallowRef } from 'vue';
+import { shallowRef, watch } from 'vue';
 
 import type { I18nStorage } from './types';
-
-const lang = 'en-US';
+import { useI18n } from './useI18n';
 
 const sleep = async <T>(e: T) => (
   await new Promise(r => setTimeout(r, 2000)), e
@@ -12,16 +11,25 @@ export const createUseTranslations = <const TIndex>(
   storage: I18nStorage<TIndex>,
 ) => {
   return <TVolume extends keyof TIndex>(volume: TVolume) => {
+    const { locale } = useI18n();
+
     type VolumeData = TIndex[TVolume];
 
-    const str = shallowRef<VolumeData>({} as VolumeData);
+    const strings = shallowRef<VolumeData>({} as VolumeData);
+    const promise = shallowRef<Promise<void>>();
 
-    const promise = storage[lang]![volume]()
-      .then(sleep)
-      .then(it => {
-        str.value = it.default;
-      });
+    watch(
+      () => locale.value.toString(),
+      () => {
+        promise.value = storage[locale.value.toString()]![volume]()
+          .then(sleep)
+          .then(it => {
+            strings.value = it.default;
+          });
+      },
+      { immediate: true },
+    );
 
-    return [str, { promise }] as const;
+    return [strings, { promise }] as const;
   };
 };

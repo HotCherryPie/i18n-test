@@ -2,6 +2,7 @@
 
 ## TODO
 
-- `<I18nProvider override?="" quirks?="" />`
-- `useI18n`
+- `createI18nStorage`
+  - Do not load translations if already loaded.
+  - Dedupe same volume load tasks.
 - [Precompile messages into AST?](https://formatjs.io/docs/icu-messageformat-parser/)
