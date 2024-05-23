@@ -1,5 +1,5 @@
 enum Data {
-  someString = 'smth str',
+  someString = 'Some string from Home',
 }
 
 export default Data;

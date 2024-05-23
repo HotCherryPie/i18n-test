@@ -1,3 +1,3 @@
 files:
-  - source: /src/translations/en-us.ts
-    translation: /src/translations/%locale%.ts
+  - source: /src/translations/en-US/*.ts
+    translation: /src/translations/%locale%/%original_file_name%.ts

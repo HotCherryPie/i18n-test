@@ -3,7 +3,7 @@
 </template>
 
 <script setup>
-import { useTranslations } from '@/hooks/useTranslations';
+import { useTranslations } from '@/hooks';
 
-const { str, promise } = useTranslations('common');
+const [str, { promise }] = useTranslations('common');
 </script>
