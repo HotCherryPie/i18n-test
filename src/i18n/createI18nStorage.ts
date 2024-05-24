@@ -1,18 +1,53 @@
-import type { I18nStorage, I18nStorageIndex } from './types';
+import type { I18nStorage, I18nStorageIndex, VolumeData } from './types';
+
+type CacheKey = string;
+
+type VolumeImportFn = () => Promise<{ default: VolumeData }>;
+
+type CacheValue = VolumeData | Promise<VolumeData>;
+
+const cache = new Map<CacheKey, CacheValue>();
+
+const sleep = async <T>(e: T) => (
+  await new Promise(r => setTimeout(r, 2000)), e
+);
 
 export const createI18nStorage = <TIndex extends I18nStorageIndex>(
-  storage: Record<string, () => Promise<unknown>>,
-) =>
-  Object.entries(storage)
-    .map(
-      ([k, v]) =>
-        [k.slice(0, -3).split('/').slice(-2) as [string, string], v] as const,
-    )
+  imports: Record<string, VolumeImportFn>,
+) => {
+  const getVolumeGetter = (key: CacheKey, fetcher: VolumeImportFn) => () => {
+    if (!cache.has(key)) {
+      cache.set(
+        key,
+        fetcher()
+          .then(sleep)
+          .then(({ default: d }) => {
+            cache.set(key, d);
+            return d;
+          }),
+      );
+    }
+
+    return cache.get(key)!;
+  };
+
+  return Object.entries(imports)
+    .map(([k, v]) => {
+      const [lang, volumeName] = k.slice(0, -3).split('/').slice(-2) as [
+        string,
+        string,
+      ];
+
+      const cacheKey = `${lang}/${volumeName}`;
+
+      return [[lang, volumeName], getVolumeGetter(cacheKey, v)] as const;
+    })
     .reduce(
-      (out, [[lang, volume], v]) => {
+      (out, [[lang, volumeName], v]) => {
         out[lang] = out[lang] ?? {};
-        out[lang]![volume] = v;
+        out[lang]![volumeName] = v;
         return out;
       },
-      {} as Record<string, Record<string, () => Promise<unknown>>>,
+      {} as Record<string, Record<string, () => CacheValue>>,
     ) as I18nStorage<TIndex>;
+};
