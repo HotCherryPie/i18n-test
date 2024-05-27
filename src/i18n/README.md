@@ -1,4 +1,4 @@
 ### Resource ID
 
-`modal.deposit.[mx-domain].ts`
-`|...volume...|.override.|`
+` modal.deposit.[mx-domain].ts`
+`|...volume....|.override..|`

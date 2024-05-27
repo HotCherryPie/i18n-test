@@ -2,7 +2,7 @@ export type VolumeName = string;
 
 export type VolumeData = Record<string, string>;
 
-type VolumeOverride = `[${string}]`;
+export type VolumeOverride = `[${string}]`;
 
 type CommonResourceId<TVolume extends VolumeName> = TVolume;
 

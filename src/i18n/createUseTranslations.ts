@@ -1,6 +1,6 @@
 import { shallowRef, watch } from 'vue';
 
-import type { I18nStorage, I18nStorageIndex } from './types';
+import type { I18nStorage, I18nStorageIndex, VolumeOverride } from './types';
 import { useI18n } from './useI18n';
 
 export const createUseTranslations = <const TIndex extends I18nStorageIndex>(
@@ -16,12 +16,18 @@ export const createUseTranslations = <const TIndex extends I18nStorageIndex>(
 
     watch(
       () => locale.value.toString(),
-      () => {
-        const lib = storage[locale.value.toString()]!;
-        const fetcher =
+      value => {
+        const lib = storage[value]!;
+
+        const overrideSpecifier =
           override.value === undefined
+            ? undefined
+            : (`[${override.value}]` satisfies VolumeOverride);
+
+        const fetcher =
+          overrideSpecifier === undefined
             ? lib[volume]
-            : lib[`${volume}.[${override.value}]`] ?? lib[volume];
+            : lib[`${volume}.${overrideSpecifier}`] ?? lib[volume];
 
         // @ts-expect-error
         const data = fetcher();

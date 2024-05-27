@@ -2,7 +2,9 @@ import type { I18nStorage, I18nStorageIndex, VolumeData } from './types';
 
 type CacheKey = string;
 
-type VolumeImportFn = () => Promise<{ default: VolumeData }>;
+type VolumeImportFn = () => Promise<unknown>;
+
+type VolumeModule = { default: VolumeData };
 
 type CacheValue = VolumeData | Promise<VolumeData>;
 
@@ -21,9 +23,10 @@ export const createI18nStorage = <TIndex extends I18nStorageIndex>(
         key,
         fetcher()
           .then(sleep)
-          .then(({ default: d }) => {
-            cache.set(key, d);
-            return d;
+          .then(module => {
+            const data = (module as unknown as VolumeModule).default;
+            cache.set(key, data);
+            return data;
           }),
       );
     }

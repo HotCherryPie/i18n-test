@@ -11,5 +11,5 @@ import { useI18n } from '@/i18n';
 
 const { locale } = useI18n();
 const [str, { promise }] = useTranslations('common');
-const [, { promise: p2 }] = useTranslations('common');
+const [, { promise: p2 }] = useTranslations('modal.auth');
 </script>
