@@ -14,7 +14,7 @@ const locale = ref('en-US');
     <option value="ru-RU">ru-RU</option>
   </select>
 
-  <I18nProvider :locale="locale">
+  <I18nProvider :locale="locale" override="mx-domain">
     <Test1 />
   </I18nProvider>
 </template>

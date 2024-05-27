@@ -1,6 +1,6 @@
 enum Data {
-  stringA = 'String A',
-  stringB = 'String B',
+  stringA = 'String A MX',
+  stringB = 'String B MX',
 }
 
 export default Data;

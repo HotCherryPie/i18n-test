@@ -1,13 +1,13 @@
 import { shallowRef, watch } from 'vue';
 
-import type { I18nStorage } from './types';
+import type { I18nStorage, I18nStorageIndex } from './types';
 import { useI18n } from './useI18n';
 
-export const createUseTranslations = <const TIndex>(
+export const createUseTranslations = <const TIndex extends I18nStorageIndex>(
   storage: I18nStorage<TIndex>,
 ) => {
-  return <TVolume extends keyof TIndex>(volume: TVolume) => {
-    const { locale } = useI18n();
+  return <TVolume extends keyof TIndex & string>(volume: TVolume) => {
+    const { locale, override } = useI18n();
 
     type VolumeData = TIndex[TVolume];
 
@@ -17,24 +17,33 @@ export const createUseTranslations = <const TIndex>(
     watch(
       () => locale.value.toString(),
       () => {
-        const v = storage[locale.value.toString()]![volume]();
+        const lib = storage[locale.value.toString()]!;
+        const fetcher =
+          override.value === undefined
+            ? lib[volume]
+            : lib[`${volume}.[${override.value}]`] ?? lib[volume];
 
-        if (v instanceof Promise) {
-          if (promise.value === v) return;
+        // @ts-expect-error
+        const data = fetcher();
 
-          promise.value = v;
+        if (data instanceof Promise) {
+          if (promise.value === data) return;
 
-          v.then(it => {
-            if (promise.value !== v) return;
+          promise.value = data;
 
-            strings.value = it;
-          }).finally(() => {
-            if (promise.value !== v) return;
+          data
+            .then(it => {
+              if (promise.value !== data) return;
 
-            promise.value = undefined;
-          });
+              strings.value = it;
+            })
+            .finally(() => {
+              if (promise.value !== data) return;
+
+              promise.value = undefined;
+            });
         } else {
-          strings.value = v;
+          strings.value = data;
         }
       },
       { immediate: true },

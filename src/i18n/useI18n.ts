@@ -6,9 +6,10 @@ export const useI18n = () => {
 
   if (context === undefined) throw new Error('I18nContext is missing');
 
-  const { locale } = context;
+  const { locale, override } = context;
 
   return {
     locale,
+    override,
   } as const;
 };
