@@ -1,28 +1,51 @@
 import { shallowRef, watch } from 'vue';
 
-import type { I18nStorage, I18nStorageIndex, VolumeOverride } from './types';
+import type {
+  I18nStorage,
+  GetI18nStorageVolumeData,
+  GetI18nStorageVolumeNames,
+  VolumeOverride,
+  I18nStorageIndex,
+} from './types';
 import { useI18n } from './useI18n';
 
-export const createUseTranslations = <const TIndex extends I18nStorageIndex>(
-  storage: I18nStorage<TIndex>,
+const stubMessage = () => 'stub';
+const stubMessages = new Proxy(
+  {},
+  {
+    get: () => stubMessage,
+  },
+);
+
+export const createUseTranslations = <
+  const TIndex extends I18nStorageIndex,
+  const TStore extends I18nStorage<TIndex>,
+>(
+  storage: TStore,
 ) => {
-  return <TVolume extends keyof TIndex & string>(volume: TVolume) => {
+  return <TVolumeName extends GetI18nStorageVolumeNames<TStore>>(
+    volume: TVolumeName,
+  ) => {
     const { locale, override } = useI18n();
 
-    type VolumeData = TIndex[TVolume];
+    type Messages = GetI18nStorageVolumeData<TStore, TVolumeName>;
 
-    const strings = shallowRef<VolumeData>({} as VolumeData);
-    const promise = shallowRef<Promise<VolumeData>>();
+    const strings = shallowRef<Messages>(stubMessages as Messages);
+    const promise = shallowRef<Promise<Messages>>();
 
     watch(
       () => locale.value.toString(),
       value => {
-        const lib = storage[value]!;
+        const lib = storage[value];
+
+        if (lib === undefined) {
+          throw new Error(`Data for language "${value}" is missing`);
+        }
 
         const overrideSpecifier =
           override.value === undefined
             ? undefined
-            : (`[${override.value}]` satisfies VolumeOverride);
+            : (`[${override.value}]` as const satisfies VolumeOverride);
 
         const fetcher =
           overrideSpecifier === undefined

@@ -1,6 +1,6 @@
 <template>
   <div>{{ locale.toString() }}</div>
-  <div>Hello {{ str.stringA }}</div>
+  <div>"{{ str.stringA() }}"</div>
   <div>{{ typeof promise }}</div>
   <div>{{ promise === p2 }}</div>
 </template>
