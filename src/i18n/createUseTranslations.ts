@@ -6,16 +6,12 @@ import type {
   GetI18nStorageVolumeNames,
   VolumeOverride,
   I18nStorageIndex,
+  MessageBuilder,
 } from './types';
 import { useI18n } from './useI18n';
 
-const stubMessage = () => 'stub';
-const stubMessages = new Proxy(
-  {},
-  {
-    get: () => stubMessage,
-  },
-);
+const stubMessage = (() => '') satisfies MessageBuilder;
+const stubMessages = new Proxy({}, { get: () => stubMessage });
 
 export const createUseTranslations = <
   const TIndex extends I18nStorageIndex,

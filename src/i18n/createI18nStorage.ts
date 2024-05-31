@@ -2,17 +2,24 @@ import type {
   I18nStorage,
   I18nStorageIndex,
   VolumeData,
-  VolumeModuleData,
-  VolumeModule,
   DictionaryId,
   VolumeResourceId,
+  VolumeIndex,
+  I18nStorageVolume,
 } from './types';
+
+// Return value of `import.meta.glob`
+type VolumeGlobImports = Record<string, () => Promise<unknown>>;
+
+type VolumeGlobImportFn = VolumeGlobImports[string];
+
+type VolumeModule = { default: VolumeIndex };
+
+type VolumeModuleData = VolumeModule['default'];
 
 type CacheKey = `${DictionaryId}/${VolumeResourceId}`;
 
-type VolumeImportFn = () => Promise<unknown>;
-
-type CacheValue = VolumeData | Promise<VolumeData>;
+type CacheValue = I18nStorageVolume;
 
 const cache = new Map<CacheKey, CacheValue>();
 
@@ -29,7 +36,7 @@ const wrapVolumeWithMessageBuilders = (volumeDataRaw: VolumeModuleData) => {
   return out;
 };
 
-const getVolumeGetter = (key: CacheKey, fetcher: VolumeImportFn) => () => {
+const getVolumeGetter = (key: CacheKey, fetcher: VolumeGlobImportFn) => () => {
   if (!cache.has(key)) {
     cache.set(
       key,
@@ -49,7 +56,7 @@ const getVolumeGetter = (key: CacheKey, fetcher: VolumeImportFn) => () => {
 };
 
 export const createI18nStorage = <TIndex extends I18nStorageIndex>(
-  imports: Record<string, VolumeImportFn>,
+  imports: VolumeGlobImports,
 ) => {
   return Object.entries(imports)
     .map(([k, v]) => {
