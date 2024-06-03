@@ -4,4 +4,13 @@ import { type Index, files } from '@/translations';
 
 export const storage = createI18nStorage<Index>(files);
 
-export const useTranslations = createUseTranslations(storage);
+const sleep = async <T>(e?: T) => (
+  await new Promise(r => setTimeout(r, 2000)), e
+);
+
+export const useTranslations = createUseTranslations(storage, {
+  async onVolumeLoadFail() {
+    await sleep();
+    return true;
+  },
+});

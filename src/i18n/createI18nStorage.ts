@@ -23,10 +23,6 @@ type CacheValue = I18nStorageVolume;
 
 const cache = new Map<CacheKey, CacheValue>();
 
-const sleep = async <T>(e: T) => (
-  await new Promise(r => setTimeout(r, 2000)), e
-);
-
 const wrapVolumeWithMessageBuilders = (volumeDataRaw: VolumeModuleData) => {
   const out: VolumeData = {};
 
@@ -41,13 +37,16 @@ const getVolumeGetter = (key: CacheKey, fetcher: VolumeGlobImportFn) => () => {
     cache.set(
       key,
       fetcher()
-        .then(sleep)
         .then(module => {
           const data = wrapVolumeWithMessageBuilders(
             (module as unknown as VolumeModule).default,
           );
           cache.set(key, data);
           return data;
+        })
+        .catch(error => {
+          cache.delete(key);
+          throw error;
         }),
     );
   }
